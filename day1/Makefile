@@ -5,10 +5,13 @@
 	mkdir -p ./image/EFI
 	mkdir -p ./image/EFI/BOOT
 	cp ~/edk2/Build/MyBootLoderX64/RELEASE_GCC5/X64/boot.efi ./image/EFI/BOOT/BOOTX64.efi
-./image/enoshima.elf:	./main.cpp	./gop.hpp
+
+./build/%.o : %.cpp Makefile
+	clang++ -c -nostdlib -O2 ./$*.cpp -o ./build/$*.o
+
+./image/enoshima.elf:	./build/main.o	./build/graphic.o	./gop.hpp
 	mkdir -p ./build
-	clang++ -c -nostdlib -O2 ./main.cpp -o ./build/main.o
-	ld.lld --image-base 0x100000 --icf=none --entry MyMain ./build/main.o -o ./build/enoshima.elf
+	ld.lld --image-base 0x100000 --icf=none --entry MyMain ./build/main.o ./build/graphic.o -o ./build/enoshima.elf
 	mkdir -p ./image
 	cp ./build/enoshima.elf ./image/enoshima.elf
 
